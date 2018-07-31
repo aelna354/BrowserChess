@@ -1,9 +1,9 @@
-body{background-color: gray;}
+body{background-color: dimgray;}
 
-#board *
+table
 {
-	display: grid,
-	grid-template-columns: auto auto auto auto auto auto auto auto;
+	padding: 1px;
+	border: 13px solid black;
 }
 .gray
 {

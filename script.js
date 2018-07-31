@@ -16,12 +16,12 @@ function Tile(row, col)
 
 	this.html = function()
 	{
-		string = "<img src='images/"
+		string = "<td><img src='images/"
 		if (this.piecekind==null)
 			string += this.color + "blank"
 		else
 			string += this.piececolor + this.piecekind
-		string += ".png' class='tile "+this.color+"'>"
+		string += ".png' class='tile "+this.color+"'></td>"
 		return string
 	}
 
@@ -45,7 +45,7 @@ function setUpTiles()
 	tiles = {}
 	for (i = 1; i < 9; i++)
 	{
-		$("#board").append("<div id='row"+i+"'></div>")
+		$("table").append("<tr id='row"+i+"'></tr7>")
 		for (j = 1; j < 9; j++)
 		{
 			tiles[(i, j)] = new Tile(i, j)
