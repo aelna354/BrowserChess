@@ -6,23 +6,18 @@ function Tile(row, col)
 {
 	this.row = row
 	this.col = col
+	this.color = "lightbrown"
+	if ((row + col) % 2 == 0)
+		this.color = "darkbrown"
 	this.piecekind = null
 	this.piececolor = null
 	this.highlighted = false
 	this.sourcemark = false
-	this.color = "grey"
-	if ((row + col) % 2 == 0)
-		this.color = "white"
 
 	this.html = function()
 	{
-		string = "<td><img src='images/"
-		if (this.piecekind==null)
-			string += this.color + "blank"
-		else
-			string += this.piececolor + this.piecekind
-		string += ".png' class='tile "+this.color+"'></td>"
-		return string
+		target = "#row"+this.row+"col"+this.col
+		$(target).attr("src", "images/"+this.color+".png")
 	}
 
 	this.clear = function()
@@ -45,15 +40,11 @@ function setUpTiles()
 	tiles = {}
 	for (i = 1; i < 9; i++)
 	{
-		$("table").append("<tr id='row"+i+"'></tr7>")
 		for (j = 1; j < 9; j++)
 		{
+			$("#row"+i).append("<td><img id='row"+i+"col"+j+"'/></td>")
 			tiles[(i, j)] = new Tile(i, j)
-			b = tiles[(i, j)].html()
-			console.log(b)
-			$("#row"+i).append(b)
+			tiles[(i, j)].html()
 		}
 	}	
 }
-
-

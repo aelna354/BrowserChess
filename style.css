@@ -5,9 +5,14 @@ table
 	padding: 1px;
 	border: 13px solid black;
 }
-.gray
+
+.lightbrown
 {
-	background-color: gray;
+	background-image: url('images/lightbrown.png');
+}
+.darkbrown
+{
+	background-image: url('images/darkbrown.png');
 }
 
 .white
