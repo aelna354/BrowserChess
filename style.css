@@ -1,14 +1,19 @@
 body
 {
 	background-color: dimgray;
-	max-width: 500px;
+	max-width: 900px;
 	margin: auto;
 }
 
-table
+#board
 {
 	padding: 1px;
 	border: 13px solid black;
+}
+
+#bottom
+{
+
 }
 
 .lightbrown
@@ -18,6 +23,14 @@ table
 .darkbrown
 {
 	background-image: url('images/darkbrown.png');
+}
+.orange
+{
+	background-image: url("images/orangeblank.png");
+}
+.blue
+{
+	background-image: url("images/blueblank.png");
 }
 
 .white
