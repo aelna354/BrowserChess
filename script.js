@@ -5,11 +5,8 @@ $(document).ready(function (){
 	$(document).on("click", ".tile", function()
 	{
 		id = $(this).attr('id')
-		tiles[(id.charAt(3), id.charAt(7))].change()
+		tiles[id.charAt(3) + id.charAt(7)].change()
 	})
-	console.log(
-	tiles[(3, 4)].id
-	)
 });
 
 function Tile(row, col)
@@ -24,7 +21,6 @@ function Tile(row, col)
 	this.highlighted = false
 	this.sourcemark = false
 	this.id = "#row"+row+"col"+col
-	console.log(this.id)
 
 	this.clear = function()
 	{
@@ -37,13 +33,8 @@ function Tile(row, col)
 
 	this.change = function()
 	{
-		console.log(this.id)
-		//$(this.id).attr("src", "images/orangeblank.png")
-		// c = "darkbrown"
-		// if (this.color == "darkbrown")
-		// 	c = "lightbrown"
-		// c = "images/"+c+".png"
-		// $(this.id).attr("src", c)
+		$(this.id).attr("src", "images/blackpawn.png")
+		$(this.id).addClass("darkbrown")
 	}
 
 	this.placePiece = function(kind, color)
@@ -61,7 +52,8 @@ function setUpTiles()
 		for (j = 1; j < 9; j++)
 		{
 			$("#row"+i).append("<td><img class='tile' id='row"+i+"col"+j+"'/></td>")
-			tiles[(i, j)] = new Tile(i, j)
+			console.log((i, j))
+			tiles[i.toString() + j.toString()] = new Tile(i, j)
 		}
 	}
 }
