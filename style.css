@@ -1,4 +1,9 @@
-body{background-color: dimgray;}
+body
+{
+	background-color: dimgray;
+	max-width: 500px;
+	margin: auto;
+}
 
 table
 {
@@ -18,4 +23,11 @@ table
 .white
 {
 	background-color: white;
+}
+
+h3, button
+{
+	float: left;
+	padding-left:45px;
+	padding-right: 45px;
 }
