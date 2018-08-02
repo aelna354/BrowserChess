@@ -1,19 +1,29 @@
 body
 {
 	background-color: dimgray;
-	max-width: 900px;
-	margin: auto;
+}
+
+#board, #bottom
+{
+	margin: 0 auto;
+}
+
+#promotion
+{
+	text: blue,
+	cursor: pointer;
 }
 
 #board
 {
 	padding: 1px;
-	border: 13px solid black;
+	border: 15px solid black;
 }
 
 #bottom
 {
-
+	background-color: yellow;
+	border: 15px solid blue;
 }
 
 .lightbrown
@@ -31,11 +41,6 @@ body
 .blue
 {
 	background-image: url("images/blueblank.png");
-}
-
-.white
-{
-	background-color: white;
 }
 
 h3, button

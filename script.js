@@ -3,6 +3,7 @@ tiles = {}, highlightedtiles = [], source = null, state = 1, turn = 1, currentco
 $(document).ready(function (){
 	setUpTiles()
 	initBoard()
+	$("#pawnpromote").hide()
 	$(document).on("click", "#actionbutton", function(){action()})
 	$(document).on("click", ".tile", function()
 	{
@@ -26,9 +27,9 @@ function Tile(row, col)
 
 	this.clear = function()
 	{
-		$(this.id).removeClass(this.color)
 		this.piecekind = ""
 		this.piececolor = ""
+		$(this.id).removeClass(this.color)
 		$(this.id).attr("src", "images/"+this.color+".png")
 	}
 
@@ -75,7 +76,6 @@ function Tile(row, col)
 			$(this.id).removeClass("blue")
 		}
 	}
-
 }
 
 function setUpTiles()
@@ -200,15 +200,14 @@ function clickTile(index)
 			}
 			if (!victory && p.piecekind == "pawn" && (p.row == 8 || p.row == 1))
 			{
-				p.sourcelight()
-				p.placePiece(p.piececolor, promotePawn())
-				p.sourcelight()
+				promotePawn()
 			}
 			if (victory)
 			{
+				setTimeout(function () { //Without this timer the alert prompt comes before the css changes
 				state = 4
 				$("#gamestatus").text("Winner: " + p.piececolor)
-				alert("Congratulations! The player controlling the " + p.piececolor + "pieces has won the game.")
+				alert("Congratulations! The player controlling the " + p.piececolor + "pieces has won the game.") }, 1)
 			}
 		}
 		else if (p.piececolor == currentcolor)
@@ -232,9 +231,17 @@ function clickTile(index)
 	}
 }
 
-function promotePawn()
+function promotePawn(p)
 {
-	return "queen" //for debugging
+	p.sourcelight()
+	state = 5
+	$("#pawnpromote").show()
+	$(".promotion").on("click", function()
+	{
+		p.placePiece(p.piececolor, $(this).text.toLowerCase())
+		$("#pawnpromote").hide()
+		p.sourcelight()
+	})
 }
 
 function goodTile(r, c, piececolor)
@@ -285,6 +292,10 @@ function accessible(p)
 	}
 	if (p.piecekind == "pawn")
 	{
+		for (i = 1; i < 9; i++)
+			for (j = 1; j < 9; j++)
+				targets.push(i.toString() + j.toString())
+		return targets
 		if (color == "black")
 		{
 			s = goodTile(r+1, c, color)
