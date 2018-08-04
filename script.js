@@ -1,6 +1,6 @@
 tiles = {}, highlightedtiles = [], source = null, promoting = null, state = 1, turn = 1, currentcolor = ""
 //for state: 1 means game hasn't started. 2 means waiting for turn player to pick the piece to move.
-//3 means waiting for player to pick where it should move to. 4 means game has ended.
+//3 means waiting for player to pick where it should move to. 4 means game has ended. 5 means waiting for pawn promotion choice
 
 $(document).ready(function ()
 {
@@ -135,10 +135,17 @@ function action() //The Start/Restart Game button
 		$("#actionbutton").text("Restart Game")
 		initGame()
 	}
-	else if (state < 5) //5 means waiting for pawn promotion
+	else
 	{
 		if (confirm("Are you sure you'd like to restart the game?"))
 		{
+			if (state == 5)
+			{
+				$("#row9").hide()
+				$("#row0").hide()
+				promoting.sourcelight()
+				promoting = null
+			}
 			initBoard()
 			initGame()
 		}
