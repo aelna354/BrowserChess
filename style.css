@@ -8,12 +8,6 @@ body
 	margin: 0 auto;
 }
 
-#promotion
-{
-	text: blue,
-	cursor: pointer;
-}
-
 #board
 {
 	padding: 1px;
@@ -22,8 +16,8 @@ body
 
 #bottom
 {
-	background-color: yellow;
-	border: 15px solid blue;
+	background-color: darkgray;
+	border: 15px solid yellow;
 }
 
 .lightbrown
@@ -46,6 +40,13 @@ body
 h3, button
 {
 	float: left;
-	padding-left:45px;
+	padding-left: 45px;
 	padding-right: 45px;
+}
+
+#pawnpromote
+{
+	background-color: white;
+	max-width: 300px;
+	max-height: 300px;
 }

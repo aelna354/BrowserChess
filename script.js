@@ -1,20 +1,35 @@
-tiles = {}, highlightedtiles = [], source = null, state = 1, turn = 1, currentcolor = ""
+tiles = {}, highlightedtiles = [], source = null, promoting = null, state = 1, turn = 1, currentcolor = ""
 //for state: 1 means game hasn't started. 2 means waiting for turn player to pick the piece to move.
-//3 means waiting for player to pick where it should move to. 4 means game has ended. 5 means waiting for pawn to be promoted
+//3 means waiting for player to pick where it should move to. 4 means game has ended.
 
-$(document).ready(function (){
-	$("#pawnpromote").hide()
+$(document).ready(function ()
+{
 	setUpTiles()
 	initBoard()
 	$(document).on("click", "#actionbutton", function(){action()})
+	
 	$(document).on("click", ".tile", function()
 	{
 		id = $(this).attr('id')
-		clickTile(id.charAt(3) + id.charAt(7))
+		id = id.charAt(3) + id.charAt(7)
+		clickTile(tiles[id])
 	})
-});
+	
+	$(document).on("click", ".promotetile", function()
+	{
+		row = 0
+		if (promoting.row == 8)
+			row = 9		
+		id = $(this).attr('id')
+		state = 2
+		promoting.placePiece(promoting.piececolor, id)
+		$("#row" + row).hide()
+		promoting.sourcelight()
+		promoting = null
+	})
+})
 
-function Tile(row, col)
+function Tile(row, col) //OOP class for managing an individual tile, including the piece that is on it.
 {
 	this.row = row
 	this.col = col
@@ -25,9 +40,9 @@ function Tile(row, col)
 	this.piececolor = ""
 	this.highlighted = false
 	this.sourcemark = false
-	this.id = "#row"+row+"col"+col
+	this.id = "#row" + row + "col" + col
 
-	this.clear = function()
+	this.clear = function() //Marks the tile as unoccupied.
 	{
 		this.piecekind = ""
 		this.piececolor = ""
@@ -37,7 +52,7 @@ function Tile(row, col)
 
 	this.clear()
 
-	this.placePiece = function(color, kind)
+	this.placePiece = function(color, kind) //Places a piece on the tile.
 	{
 		this.piececolor = color
 		this.piecekind = kind
@@ -45,7 +60,7 @@ function Tile(row, col)
 		$(this.id).attr("src", "images/" + color + kind + ".png")
 	}
 
-	this.highlight = function()
+	this.highlight = function() //Highlights the tile as a possible destination.
 	{
 		if (!this.highlighted)
 		{
@@ -65,7 +80,7 @@ function Tile(row, col)
 		}
 	}
 
-	this.sourcelight = function()
+	this.sourcelight = function() //Marks tile as the one the user can now move the piece. Also used to mark the tile of a pawn about to be promoted.
 	{
 		if (!this.sourcemark)
 		{
@@ -80,90 +95,116 @@ function Tile(row, col)
 	}
 }
 
-function setUpTiles()
+function setUpTiles() //creates the tiles and their corresponding html elements
 {
+	createPawnPromotion(0)
 	for (i = 1; i < 9; i++)
 	{
-		$("#board").append("<tr id='row"+i+"'/>")
+		$("#board").append("<tr id='row" + i + "'/>")
 		for (j = 1; j < 9; j++)
 		{
-			$("#row"+i).append("<td><img class='tile' id='row"+i+"col"+j+"'/></td>")
+			$("#row"+i).append("<td> <img class='tile' id='row" + i + "col" + j + "'/></td>")
 			tiles[i.toString() + j.toString()] = new Tile(i, j)
 		}
 	}
+	createPawnPromotion(9)
+	$("#row9").hide()
+	$("#row0").hide()
 }
 
-function action()
+function createPawnPromotion(ind) //creates the pawn promotion tiles
+{
+	color = "white"
+	if (ind == 9)
+		color = "black"
+	promotes = ["queen", "bishop", "rook", "knight"]
+
+	$("#board").append("<tr id='row" + ind + "'/>")
+	for (i = 0; i < 4; i++)
+	{
+		index = promotes[i]
+		$("#row" + ind).append("<td align='center' colspan='2'> <img class='promotetile' id='" + index + "'" +
+		" src='images/" + color + index + ".png'/></td>")
+	}
+}
+
+function action() //The Start/Restart Game button
 {
 	if (state == 1)
 	{
 		$("#actionbutton").text("Restart Game")
 		initGame()
 	}
-	else
+	else if (state < 5) //5 means waiting for pawn promotion
 	{
 		if (confirm("Are you sure you'd like to restart the game?"))
 		{
-			unhighlight()
 			initBoard()
 			initGame()
 		}
 	}
 }
 
-function initGame()
-{
-	turn = 1
-	$("#gamestatus").text("Current Turn: White")
-	state = 2
-	currentcolor = "white"
-}
-
-function initBoard()
-{
-	for (i = 3; i < 7; i++)
-		for (j = 1; j < 9; j++)
-			tiles[i.toString() + j.toString()].clear()
-	for (i = 1; i < 9; i++)
-	{
-		tiles["2" + i.toString()].placePiece("black", "pawn")
-		tiles["7" + i.toString()].placePiece("white", "pawn")
-	}
-	for (i = 2; i < 8; i+=5) //2 and 7
-	{
-		tiles["1" + i.toString()].placePiece("black", "knight")
-		tiles["8" + i.toString()].placePiece("white", "knight")
-	}
-	for (i = 1; i < 9; i+=7) //1 and 8
-	{
-		tiles["1" + i.toString()].placePiece("black", "rook")
-		tiles["8" + i.toString()].placePiece("white", "rook")
-	}
-	for (i = 3; i < 7; i+=3) //3 and 6
-	{
-		tiles["1" + i.toString()].placePiece("black", "bishop")
-		tiles["8" + i.toString()].placePiece("white", "bishop")
-	}
-	tiles["14"].placePiece("black", "king")
-	tiles["15"].placePiece("black", "queen")
-	tiles["84"].placePiece("white", "king")
-	tiles["85"].placePiece("white", "queen")
-}
-
-function unhighlight()
+function unhighlight() //Unhighlights all tiles.
 {
 	for (i = 0; i < highlightedtiles.length; i++)
 		self.tiles[highlightedtiles[i]].highlight()
 	highlightedtiles = []
 }
 
-function clickTile(index)
+function initGame() //Starts/restarts the game.
 {
-	p = tiles[index]
-	if (state == 2 && p.piececolor == currentcolor)
+	turn = 1
+	state = 2
+	currentcolor = "white"
+	$("#turncount").text("Turn Count: 1")
+	$("#gamestatus").text("Current Turn: White")
+}
+
+function initBoard() //Creates/resets the board pieces.
+{
+	//empty spots in rows 3 to 6
+	for (i = 3; i < 7; i++)
+		for (j = 1; j < 9; j++)
+			tiles[i.toString() + j.toString()].clear()
+
+	for (i = 1; i < 9; i++) //pawns
+	{
+		tiles["2" + i.toString()].placePiece("black", "pawn")
+		tiles["7" + i.toString()].placePiece("white", "pawn")
+	}
+
+	for (i = 2; i < 8; i+=5) //knights
+	{
+		tiles["1" + i.toString()].placePiece("black", "knight")
+		tiles["8" + i.toString()].placePiece("white", "knight")
+	}
+
+	for (i = 1; i < 9; i+=7) //rooks
+	{
+		tiles["1" + i.toString()].placePiece("black", "rook")
+		tiles["8" + i.toString()].placePiece("white", "rook")
+	}
+
+	for (i = 3; i < 7; i+=3) //bishops
+	{
+		tiles["1" + i.toString()].placePiece("black", "bishop")
+		tiles["8" + i.toString()].placePiece("white", "bishop")
+	}
+
+	//kings and queens
+	tiles["14"].placePiece("black", "king")
+	tiles["15"].placePiece("black", "queen")
+	tiles["84"].placePiece("white", "king")
+	tiles["85"].placePiece("white", "queen")
+}
+
+function clickTile(p) //What happens when a tile is clicked.
+{
+	if (state == 2 && p.piececolor == currentcolor) //When turn player picks a piece to move
 	{
 		destinations = accessible(p)
-		for (i=0; i < destinations.length; i++)
+		for (i = 0; i < destinations.length; i++)
 		{
 			tiles[destinations[i]].highlight()
 			highlightedtiles.push(destinations[i])
@@ -175,107 +216,116 @@ function clickTile(index)
 			source = p
 		}
 	}
-	else if (state == 3)
+
+	else if (state == 3 && p.piececolor == currentcolor) //When turn player opts to move a different piece
 	{
-		if (p.highlighted)
+		unhighlight()
+		source.sourcelight()
+		destinations = accessible(p)
+		for (i=0; i < destinations.length; i++)
 		{
-			victory = false
-			if (p.piecekind == "king")
-				victory = true
-			source.sourcelight()
-			p.placePiece(source.piececolor, source.piecekind)
-			source.clear()
-			source = null
-			state = 2
-			unhighlight()
-			turn++
-			$("#turncount").text("Turn Count: " + turn)
-			if (currentcolor == "white")
-			{
-				currentcolor = "black"
-				$("#gamestatus").text("Current Turn: Black")
-			}
-			else
-			{
-				currentcolor = "white"
-				$("#gamestatus").text("Current Turn: White")
-			}
-			if (!victory && p.piecekind == "pawn" && (p.row == 8 || p.row == 1))
-			{
-				promotePawn()
-			}
-			if (victory)
-			{
-				setTimeout(function () { //Without this timer the alert prompt comes before the css changes
-				state = 4
-				$("#gamestatus").text("Winner: " + p.piececolor)
-				alert("Congratulations! The player controlling the " + p.piececolor + " pieces has won the game.") }, 1)
-			}
+			tiles[destinations[i]].highlight()
+			highlightedtiles.push(destinations[i])
 		}
-		else if (p.piececolor == currentcolor)
+		if (highlightedtiles.length > 0)
 		{
-			unhighlight()
+			source = p
 			source.sourcelight()
-			destinations = accessible(p)
-			for (i=0; i < destinations.length; i++)
-			{
-				tiles[destinations[i]].highlight()
-				highlightedtiles.push(destinations[i])
-			}
-			if (highlightedtiles.length > 0)
-			{
-				source = p
-				source.sourcelight()
-			}
-			else
-				state = 2
+		}
+		else
+			state = 2
+	}
+
+	else if (state == 3 && p.highlighted) //When turn player has picked the destination tile
+	{
+		victory = false
+		if (p.piecekind == "king")
+			victory = true
+		source.sourcelight()
+		p.placePiece(source.piececolor, source.piecekind)
+		source.clear()
+		source = null
+		state = 2
+		unhighlight()
+		turn++
+		$("#turncount").text("Turn Count: " + turn)
+
+		if (currentcolor == "white")
+		{
+			currentcolor = "black"
+			$("#gamestatus").text("Current Turn: Black")
+		}
+
+		else
+		{
+			currentcolor = "white"
+			$("#gamestatus").text("Current Turn: White")
+		}
+
+		if (!victory && p.piecekind == "pawn" && (p.row == 8 || p.row == 1)) //promote pawn
+		{
+			promotePawn(p)
+		}
+
+		if (victory)
+		{
+			state = 4
+			winner = "Winner: White"
+			if (p.piececolor == "black")
+				winner = "Winner: Black"
+			$("#gamestatus").text(winner)
+
+			//Without this timer the alert prompt comes before the css changes... don't ask me :(
+			setTimeout(function () { 
+			alert("Congratulations! The player controlling the " + p.piececolor + " pieces has won the game.") }, 1)
 		}
 	}
+
 }
 
 function promotePawn(p)
-{
+{	
+	row = 0
+	if (p.row == 8)
+		row = 9		
 	p.sourcelight()
 	state = 5
-	$("#pawnpromote").show()
-	$(".promotion").on("click", function()
-	{
-		p.placePiece(p.piececolor, $(this).text.toLowerCase())
-		$("#pawnpromote").hide()
-		p.sourcelight()
-	})
+	$("#row" + row).show()
+	promoting = p
 }
 
-function goodTile(r, c)
+//Given a row and column index, determine the status of this tile (if it exists or is accessible).
+//If it doesn't exist, or if it is occupied by a piece of the same color, return 1.
+//If it is unoccupied, return 2.
+//If it is occupied by a piece of the opposing color, return 3.
+function goodTile(r, c) 
 {
-	//if the provided tile doesn't exist, return 1.
-	//if the provided tile is the same color, return 1.
-	//if the provided tile is unoccupied, return 2.
-	//if the provided tile is occupied by the opposing color, return 3.
 	if (r > 8 || r < 1 || c > 8 || c < 1)
 		return 1
-	index = r.toString() + c.toString()
-	if (tiles[index].piececolor == currentcolor)
+	tile = tiles[r.toString() + c.toString()]
+	if (tile.piececolor == currentcolor)
 		return 1
-	if (!tiles[index].piececolor)
+	if (!tile.piececolor)
 		return 2
 	return 3
 }
 
-//Calculates accessible tiles from a certain spot.
-function accessible(p)
+function accessible(p) //Given a tile and the kind of piece that is on it, calculate all of the tiles that can be accessed from it.
 {
 	r = p.row
 	c = p.col
 	color = p.piececolor
+	kind = p.piecekind
 
 	targets = []
-	if (p.piecekind == "king")
+	if (kind == "king")
 	{
 		for (i = -1; i < 2; i++)
 			for (j = -1; j < 2; j++)
 				if (i !=0 || j!=0)
 				{
+					//i represents change in row, j represents change in column.
+					//(0, 0) set aside, these are all of the adjacent pieces, which are the king's possible movements.
 					a = r + i
 					b = c + j
 					if (goodTile(a, b, color) != 1)
@@ -283,12 +333,15 @@ function accessible(p)
 				}
 		return targets
 	}
-	if (p.piecekind == "knight")
+
+	if (kind == "knight")
 	{
 		rowchange = [2, 2, -2, -2, 1, 1, -1, -1]
 		colchange = [1, -1, 1, -1, 2, -2, 2, -2]
 		for (i = 0; i < 8; i++)
 		{
+			//The indices of row and colchange correspond to each other.
+			//0 represents moving down 2 rows and right one column, 7 is up 1 rows and left 2 columns
 			a = r + rowchange[i]
 			b = c + colchange[i]
 			if (goodTile(a, b, color) != 1)
@@ -296,48 +349,48 @@ function accessible(p)
 		}
 		return targets
 	}
-	if (p.piecekind == "pawn")
+
+	if (kind == "pawn")
 	{
-		//for debugging while i try to figure out pawn promotion
-		for (i = 1; i < 9; i++)
-			for (j = 1; j < 9; j++)
-				targets.push(i.toString() + j.toString())
-		return targets
-		if (color == "black")
+		//change is the direction pawn moves (for black, it's 1 row downards which is +1 to row, white is 1 row up which is -1)
+		//twospotsrow is the row to be on to be able to move two tiles, twospotsmove is which row that is
+		change = 1
+		twospotsrow = 2
+		twospotsmove = 4 //the row 2 spaces ahead
+		if (color == "white")
 		{
-			s = goodTile(r+1, c, color)
-			if (s > 1)
-				targets.push((r+1).toString() + c.toString())
-			if (s == 2 && r == 2 && goodTile(r+2, c, color) > 1)
-				targets.push((r+2).toString() + c.toString())
+			change = -1
+			twospotsrow = 7
+			twospotsmove = 5
 		}
-		else
-		{			
-			s = goodTile(r-1, c, color)
-			if (s > 1)
-				targets.push((r-1).toString() + c.toString())
-			if (s == 2 && r == 7 && goodTile(r-2, c) > 1)
-				targets.push((r-2).toString() + c.toString())
-		}
+		s = goodTile(r + change, c, color)
+		if (s > 1)
+			targets.push((r+ change).toString() + c.toString())
+		if (s == 2 && r == twospotsrow && goodTile(twospotsmove, c, color) != 1)
+			targets.push(twospotsmove.toString() + c.toString())
 		return targets
 	}
-	if (p.piecekind == "rook" || p.piecekind == "queen")
+
+	if (kind == "rook" || kind == "queen")
 	{
 		dirs = [true, true, true, true]
 		for (i = 1; i < 9; i++)
 		{
+			//dirs, rowchange and colchange variables correspond to the directions; up, down, left and right.
+			//The purpose of the dirs array is to mark where we find an obstruction that we can't jump over.
+			//We can mark the dirs index corresponding to that direction as false, so we know not to count it in the future.
 			rowchange = [r-i, r+i, r, r]
 			colchange = [c, c, c-i, c+i]
 			for (j = 0; j < 4; j++)
 			{
-				if (!dirs[j])
+				if (!dirs[j]) //if an obstruction was found earlier for this direction, automatically exit
 					continue
 				s = goodTile(rowchange[j], colchange[j], color)
-				if (s == 1)
+				if (s == 1) //if a piece of the same color is there, ignore any more pieces in this direction
 					dirs[j] = false
-				else if (s == 2)
+				else if (s == 2) //if the tile is unoccupied, add it
 					targets.push(rowchange[j].toString() + colchange[j].toString())
-				else
+				else //if a piece of the opposing color is there, add that piece, but don't add any more pieces in this direction (queen/rook don't jump over)
 				{
 					targets.push(rowchange[j].toString() + colchange[j].toString())
 					dirs[j] = false
@@ -345,7 +398,8 @@ function accessible(p)
 			}
 		}
 	}
-	if (p.piecekind == "queen" || p.piecekind == "bishop")
+
+	if (kind == "queen" || kind == "bishop") //the idea here is the same as above. Only difference is that rowchange and colchange are modified to represent diagonal movements
 	{
 		dirs = [true, true, true, true]
 		for (i = 1; i < 9; i++)
