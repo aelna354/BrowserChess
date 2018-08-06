@@ -7,14 +7,17 @@ currentcolor = ""
 state = 1
 //for state: 1 means game hasn't started. 2 means waiting for turn player to pick the piece to move.
 //3 means waiting for player to pick where it should move to. 4 means game has ended.
-//5 means waiting for pawn promotion choice
+//5 means waiting for pawn promotion choice.
 
-document.addEventListener("DOMContentLoaded", function() { 
+document.addEventListener("DOMContentLoaded", function()
+{ 
 	setUpTiles()
 	initBoard()
 });
 
-function $(id) //JQuery inspired, this is here for code readability.
+//Inspired by JQuery, this is for code readability.
+//document.getElementById would cloud up the code without this.
+function $(id)
 {
 	return document.getElementById(id)
 }
@@ -39,8 +42,6 @@ function Tile(row, col) //OOP class for managing an individual tile, including t
 		$(this.id).classList.remove(this.color)
 		$(this.id).src = "images/" + this.color + ".png"
 	}
-
-	this.clear()
 
 	this.placePiece = function(color, kind) //Places a piece on the tile.
 	{
@@ -85,7 +86,7 @@ function Tile(row, col) //OOP class for managing an individual tile, including t
 	}
 }
 
-function setUpTiles() //creates the tiles and their corresponding html elements
+function setUpTiles() //Creates the chessboard
 {
 	createPawnPromotion(0)
 	for (i = 1; i < 9; i++)
@@ -93,7 +94,7 @@ function setUpTiles() //creates the tiles and their corresponding html elements
 		$("board").innerHTML += "<tr id='row" + i + "'/>"
 		for (j = 1; j < 9; j++)
 		{
-			$("row"+i).innerHTML += "<td> <img class='tile' onclick='clickTile(this.id)' id='row" + i + "col" + j + "'/></td>"
+			$("row"+i).innerHTML += "<td> <img onclick='clickTile(this.id)' id='row" + i + "col" + j + "'/></td>"
 			tiles[i.toString() + j.toString()] = new Tile(i, j)
 		}
 	}
@@ -113,7 +114,7 @@ function createPawnPromotion(ind) //creates the pawn promotion tiles
 	for (i = 0; i < 4; i++)
 	{
 		index = promotes[i]
-		$("row" + ind).innerHTML += "<td align='center' colspan='2'> <img onclick='runPawnPromotion(this.id)' class='promotetile' id='" + index + "'" +
+		$("row" + ind).innerHTML += "<td align='center' colspan='2'> <img onclick='runPawnPromotion(this.id)' id='" + index + "'" +
 		" src='images/" + color + index + ".png'/></td>"
 	}
 }
@@ -300,7 +301,6 @@ function promotePawn(p)
 		row = 9		
 	p.sourcelight()
 	state = 5
-	actionbutton
 	$("row" + row).style.display = "table-row"
 	promoting = p
 }
