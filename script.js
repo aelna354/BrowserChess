@@ -1,33 +1,23 @@
-tiles = {}, highlightedtiles = [], source = null, promoting = null, state = 1, turn = 1, currentcolor = ""
+tiles = {}
+highlightedtiles = []
+source = null
+promoting = null
+turn = 1
+currentcolor = ""
+state = 1
 //for state: 1 means game hasn't started. 2 means waiting for turn player to pick the piece to move.
-//3 means waiting for player to pick where it should move to. 4 means game has ended. 5 means waiting for pawn promotion choice
+//3 means waiting for player to pick where it should move to. 4 means game has ended.
+//5 means waiting for pawn promotion choice
 
-$(document).ready(function ()
-{
+document.addEventListener("DOMContentLoaded", function() { 
 	setUpTiles()
 	initBoard()
-	$(document).on("click", "#actionbutton", function(){action()})
-	
-	$(document).on("click", ".tile", function()
-	{
-		id = $(this).attr('id')
-		id = id.charAt(3) + id.charAt(7)
-		clickTile(tiles[id])
-	})
-	
-	$(document).on("click", ".promotetile", function()
-	{
-		row = 0
-		if (promoting.row == 8)
-			row = 9		
-		id = $(this).attr('id')
-		state = 2
-		promoting.placePiece(promoting.piececolor, id)
-		$("#row" + row).hide()
-		promoting.sourcelight()
-		promoting = null
-	})
-})
+});
+
+function $(id) //JQuery inspired, this is here for code readability.
+{
+	return document.getElementById(id)
+}
 
 function Tile(row, col) //OOP class for managing an individual tile, including the piece that is on it.
 {
@@ -40,14 +30,14 @@ function Tile(row, col) //OOP class for managing an individual tile, including t
 	this.piececolor = ""
 	this.highlighted = false
 	this.sourcemark = false
-	this.id = "#row" + row + "col" + col
+	this.id = "row" + row + "col" + col
 
 	this.clear = function() //Marks the tile as unoccupied.
 	{
 		this.piecekind = ""
 		this.piececolor = ""
-		$(this.id).removeClass(this.color)
-		$(this.id).attr("src", "images/"+this.color+".png")
+		$(this.id).classList.remove(this.color)
+		$(this.id).src = "images/" + this.color + ".png"
 	}
 
 	this.clear()
@@ -56,8 +46,8 @@ function Tile(row, col) //OOP class for managing an individual tile, including t
 	{
 		this.piececolor = color
 		this.piecekind = kind
-		$(this.id).addClass(this.color)
-		$(this.id).attr("src", "images/" + color + kind + ".png")
+		$(this.id).classList.add(this.color)
+		$(this.id).src = "images/" + color + kind + ".png"
 	}
 
 	this.highlight = function() //Highlights the tile as a possible destination.
@@ -66,17 +56,17 @@ function Tile(row, col) //OOP class for managing an individual tile, including t
 		{
 			this.highlighted = true
 			if (!this.piecekind)
-				$(this.id).attr("src", "images/orangeblank.png")
+				$(this.id).src =  "images/orangeblank.png"
 			else
-				$(this.id).addClass("orange")
+				$(this.id).classList.add("orange")
 		}
 		else
 		{
 			this.highlighted = false
 			if (!this.piecekind)
-				$(this.id).attr("src", "images/" + this.color + ".png")
+				$(this.id).src =  "images/" + this.color + ".png"
 			else
-				$(this.id).removeClass("orange")
+				$(this.id).classList.remove("orange")
 		}
 	}
 
@@ -85,12 +75,12 @@ function Tile(row, col) //OOP class for managing an individual tile, including t
 		if (!this.sourcemark)
 		{
 			this.sourcemark = true
-			$(this.id).addClass("blue")
+			$(this.id).classList.add("blue")
 		}
 		else
 		{
 			this.sourcemark = false
-			$(this.id).removeClass("blue")
+			$(this.id).classList.remove("blue")
 		}
 	}
 }
@@ -100,16 +90,16 @@ function setUpTiles() //creates the tiles and their corresponding html elements
 	createPawnPromotion(0)
 	for (i = 1; i < 9; i++)
 	{
-		$("#board").append("<tr id='row" + i + "'/>")
+		$("board").innerHTML += "<tr id='row" + i + "'/>"
 		for (j = 1; j < 9; j++)
 		{
-			$("#row"+i).append("<td> <img class='tile' id='row" + i + "col" + j + "'/></td>")
+			$("row"+i).innerHTML += "<td> <img class='tile' onclick='clickTile(this.id)' id='row" + i + "col" + j + "'/></td>"
 			tiles[i.toString() + j.toString()] = new Tile(i, j)
 		}
 	}
 	createPawnPromotion(9)
-	$("#row9").hide()
-	$("#row0").hide()
+	$("row9").style.display = "none"
+	$("row0").style.display = "none"
 }
 
 function createPawnPromotion(ind) //creates the pawn promotion tiles
@@ -119,20 +109,32 @@ function createPawnPromotion(ind) //creates the pawn promotion tiles
 		color = "black"
 	promotes = ["queen", "bishop", "rook", "knight"]
 
-	$("#board").append("<tr id='row" + ind + "'/>")
+	$("board").innerHTML += "<tr id='row" + ind + "'/>"
 	for (i = 0; i < 4; i++)
 	{
 		index = promotes[i]
-		$("#row" + ind).append("<td align='center' colspan='2'> <img class='promotetile' id='" + index + "'" +
-		" src='images/" + color + index + ".png'/></td>")
+		$("row" + ind).innerHTML += "<td align='center' colspan='2'> <img onclick='runPawnPromotion(this.id)' class='promotetile' id='" + index + "'" +
+		" src='images/" + color + index + ".png'/></td>"
 	}
+}
+
+function runPawnPromotion(id)
+{
+	row = 0
+	if (promoting.row == 8)
+		row = 9
+	state = 2
+	promoting.placePiece(promoting.piececolor, id)
+	$("row"+row).style.display = "none"
+	promoting.sourcelight()
+	promoting = null
 }
 
 function action() //The Start/Restart Game button
 {
 	if (state == 1)
 	{
-		$("#actionbutton").text("Restart Game")
+		$("actionbutton").textContent = "Restart Game"
 		initGame()
 	}
 	else
@@ -141,8 +143,8 @@ function action() //The Start/Restart Game button
 		{
 			if (state == 5)
 			{
-				$("#row9").hide()
-				$("#row0").hide()
+				$("row9").style.display = "none"
+				$("row0").style.display = "none"
 				promoting.sourcelight()
 				promoting = null
 			}
@@ -164,8 +166,8 @@ function initGame() //Starts/restarts the game.
 	turn = 1
 	state = 2
 	currentcolor = "white"
-	$("#turncount").text("Turn Count: 1")
-	$("#gamestatus").text("Current Turn: White")
+	$("gamestatus").textContent = "Current Turn: White"
+	$("turncount").textContent = "Turn Count: 1"
 }
 
 function initBoard() //Creates/resets the board pieces.
@@ -208,6 +210,7 @@ function initBoard() //Creates/resets the board pieces.
 
 function clickTile(p) //What happens when a tile is clicked.
 {
+	p = tiles[p.charAt(3) + p.charAt(7)]
 	if (state == 2 && p.piececolor == currentcolor) //When turn player picks a piece to move
 	{
 		destinations = accessible(p)
@@ -255,18 +258,18 @@ function clickTile(p) //What happens when a tile is clicked.
 		state = 2
 		unhighlight()
 		turn++
-		$("#turncount").text("Turn Count: " + turn)
+		$("turncount").textContent = "Turn Count: " + turn
 
 		if (currentcolor == "white")
 		{
 			currentcolor = "black"
-			$("#gamestatus").text("Current Turn: Black")
+			$("gamestatus").textContent = "Current Turn: Black"
 		}
 
 		else
 		{
 			currentcolor = "white"
-			$("#gamestatus").text("Current Turn: White")
+			$("gamestatus").textContent = "Current Turn: White"
 		}
 
 		if (!victory && p.piecekind == "pawn" && (p.row == 8 || p.row == 1)) //promote pawn
@@ -280,7 +283,7 @@ function clickTile(p) //What happens when a tile is clicked.
 			winner = "Winner: White"
 			if (p.piececolor == "black")
 				winner = "Winner: Black"
-			$("#gamestatus").text(winner)
+			$("gamestatus").textContent = winner
 
 			//Without this timer the alert prompt comes before the css changes... don't ask me :(
 			setTimeout(function () { 
@@ -297,7 +300,8 @@ function promotePawn(p)
 		row = 9		
 	p.sourcelight()
 	state = 5
-	$("#row" + row).show()
+	actionbutton
+	$("row" + row).style.display = "table-row"
 	promoting = p
 }
 

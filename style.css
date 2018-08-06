@@ -3,6 +3,26 @@ body
 	background-color: dimgray;
 }
 
+/*The board pieces look somewhat ugly when highlighted and aren't meant to be.*/
+#board
+{
+	outline: none;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+h2
+{
+	color: blue,
+	font-size: 55px;
+}
+
+a:visited { color: blue; }
+
 #board, #bottom
 {
 	margin: 0 auto;
